@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matematyczna Wyrocznia Procentowa</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #1a1a2e; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+  .card { background: #16213e; padding: 2rem; border-radius: 16px; width: 90%; max-width: 600px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); text-align: center; }
+  h1 { color: #e94560; font-size: 1.6rem; margin-bottom: 1rem; }
+  .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.5rem; }
+  button { background: #0f3460; color: #fff; border: 2px solid #e94560; border-radius: 8px; padding: 14px; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+  button:hover { background: #e94560; }
+  .fortune { font-size: 1.3rem; line-height: 1.5; color: #f9d342; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #f9d342; margin-top: 1rem; }
+  .progress { font-size: 0.9rem; color: #888; margin-bottom: 0.5rem; }
+</style>
+</head>
+<body>
+
+<div class="card" id="app">
+  <h1>🔮 Matematyczna Wyrocznia</h1>
+  <div class="progress" id="progress">Pytanie 1 z 3</div>
+  <div id="question-box" style="font-size: 1.2rem; min-height: 60px;"></div>
+  <div class="btn-grid" id="answers-box"></div>
+</div>
+
+<script>
+// Pula zadań dostosowana do 1 BS (praktyczne, życiowe)
+const pool = [
+  { q: "Bluza kosztuje 120 zł. Obniżono cenę o 10%. Ile wynosi rabat?", a: ["12 zł", "10 zł", "20 zł", "108 zł"], c: 0 },
+  { q: "Na 25 uczniów obecnych jest 20. Jaki to procent klasy?", a: ["80%", "75%", "85%", "50%"], c: 0 },
+  { q: "Do pensji 4000 zł doliczono 5% premii. Ile wynosi premia?", a: ["200 zł", "400 zł", "50 zł", "20 zł"], c: 0 },
+  { q: "25% z kwoty 600 zł to:", a: ["150 zł", "120 zł", "200 zł", "250 zł"], c: 0 },
+  { q: "Cena 50 zł wzrosła o 20%. Nowa cena to:", a: ["60 zł", "70 zł", "55 zł", "52 zł"], c: 0 },
+  { q: "Wiertło stępione w 50% oznacza, że pozostało mu sprawności:", a: ["Pół na pół (50%)", "25%", "Zero", "10%"], c: 0 }
+];
+
+const fortunes = {
+  3: [
+    "Wypłata na pasku nigdy Cię nie zaskoczy – brutto i netto masz w małym palcu!",
+    "Gwiazdy mówią: żaden rabat w markecie nie ukryje przed Tobą zawyżonej ceny wyjściowej."
+  ],
+  2: [
+    "Jeśli uczyć się będziesz, pewną piątkę mieć będziesz – Yoda czuwa nad Twoją semestralną!",
+    "Twoja wiedza rośnie w tempie 150% w skali tygodnia – utrzymaj kurs!"
+  ],
+  low: [
+    "W tym roku Twoja wiedza matematyczna wzrośnie o co najmniej 200% – startujesz ze strategicznej pozycji!",
+    "Karty radzą: przelicz resztę w sklepie dwa razy, a kalkulator niech będzie Twoim przyjacielem."
+  ]
+};
+
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+
+function initGame() {
+  currentQuestions = [...pool].sort(() => 0.5 - Math.random()).slice(0, 3);
+  currentIndex = 0;
+  score = 0;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const qData = currentQuestions[currentIndex];
+  document.getElementById("progress").textContent = `Zadanie ${currentIndex + 1} z 3`;
+  document.getElementById("question-box").textContent = qData.q;
+  
+  const answersBox = document.getElementById("answers-box");
+  answersBox.innerHTML = "";
+  
+  // Mieszanie odpowiedzi
+  const answers = qData.a.map((text, index) => ({ text, isCorrect: index === qData.c }));
+  answers.sort(() => 0.5 - Math.random());
+
+  answers.forEach(item => {
+    const btn = document.createElement("button");
+    btn.textContent = item.text;
+    btn.onclick = () => handleAnswer(item.isCorrect);
+    answersBox.appendChild(btn);
+  });
+}
+
+function handleAnswer(isCorrect) {
+  if (isCorrect) score++;
+  currentIndex++;
+  if (currentIndex < 3) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  let list = fortunes.low;
+  if (score === 3) list = fortunes[3];
+  else if (score === 2) list = fortunes[2];
+
+  const fortune = list[Math.floor(Math.random() * list.length)];
+  
+  document.getElementById("app").innerHTML = `
+    <h1>✨ Twoja Przepowiednia</h1>
+    <p style="color: #aaa;">Poprawne odpowiedzi: ${score}/3</p>
+    <div class="fortune">"${fortune}"</div>
+    <div style="margin-top: 2rem;">
+      <button onclick="location.reload()">Losuj zadania dla kolejnej osoby</button>
+    </div>
+  `;
+}
+
+initGame();
+</script>
+</body>
+</html>
